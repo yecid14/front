@@ -11,9 +11,9 @@ class aerolinea {
 
     public function __construct() {
 //Constructor
-        $this->host = '172.16.7.98';
-        $this->user = 'Architect02';
-        $this->password = '@DM1N1STR4D0R2016';
+        $this->host = 'localhost';
+        $this->user = 'root';
+        $this->password = '';
         $this->database = 'aerolinea_yecid';
     }
 

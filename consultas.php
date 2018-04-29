@@ -190,7 +190,7 @@ WHERE ciudad_origen_id ='$_POST[ciudad_origen]' AND ciudad_destino_id ='$_POST[c
 
                 $.ajax({
                     type: "POST",
-                    url: "/testBackend_yecid/consultas.php",
+                    url: "/testBackend/consultas.php",
                     data: {"id_trayecto": value_id, "form": "detalle_vuelo"},
                     success: function (data)
                     {
@@ -242,7 +242,7 @@ WHERE trayectos.id ='$_POST[id_trayecto]'";
                 </header>
                 <div class="card-body">
                     <form id="info_user">
-                        <div class="form-group is-empty">
+                        <div class="form-group is-empty" style="display: none" id="camp_nom">
                             <div class="input-group">
                                 <span class="input-group-addon"><i class="zmdi zmdi-account"></i></span>
                                 <input type="text" class="form-control" name="nombre_c" id="nombre_add" placeholder="Nombre completo">
@@ -250,14 +250,15 @@ WHERE trayectos.id ='$_POST[id_trayecto]'";
                         </div>
                         <div class="form-group is-empty">
                             <div class="input-group">
+                                <input type="hidden" name="validar_info" value="ok">
                                 <span class="input-group-addon"><i class="zmdi zmdi-account-calendar"></i></span>
                                 <input type="text" class="form-control" name="doc_identidad" id="doc_add" placeholder="Documento de Identidad">
                             </div>
                         </div>
-                        <div class="form-group is-empty">
+                        <div class="form-group is-empty" style="display: none" id="camp_f_n">
                             <div class="input-group">
                                 <span class="input-group-addon"><i class="zmdi zmdi-calendar"></i></span>
-                                <input type="hidden" name="validar_info" value="ok">
+
                                 <input type="text" class="form-control " name="f_nacimiento" id="datepicker" placeholder="Fecha Nacimiento">
                             </div>
                         </div>
@@ -268,6 +269,7 @@ WHERE trayectos.id ='$_POST[id_trayecto]'";
                 </div>
                 <div class="card-footer text-right">
                     <button type="button" id="btn_submit" class="btn btn-primary btn-sm btn-block">validar Información</button>
+                    <button class="btn btn-success btn-sm btn-block" id="insert_user_p" style="display: none">Guardar</button>
                 </div>
             </div>
         </div>
@@ -309,7 +311,7 @@ WHERE trayectos.id ='$_POST[id_trayecto]'";
 
             $.ajax({
                 type: "POST",
-                url: "/testBackend_yecid/consultas.php",
+                url: "/testBackend/consultas.php",
                 data: $("#info_user").serialize(),
                 success: function (data)
                 {
@@ -345,6 +347,12 @@ if (isset($_POST[validar_info])) {
         $row3 = $sql->Resultados($result);
         if ($row3[estado] == "1") {
             ?>
+
+            <script>
+                $('#info_user').find('input, select').attr('disabled', 'disabled');
+                $('#btn_submit').remove();
+            </script>
+
             <div class="col-md-12">
                 <h2 class="card-title">Confirmar Reserva</h2>
                 <div></div>
@@ -361,8 +369,9 @@ if (isset($_POST[validar_info])) {
     } else {
         ?>
         <div class="alert alert-dismissible text-center" >
-            <b>El usuario no se encuentra registrado.</b>
-            <button class="btn btn-sm btn-info" id="insert_user_p">¿REGISTRAR AHORA?</button>
+            <b>El usuario no se encuentra registrado.</b> 
+            <button class="btn btn-sm btn-info" id="btn_reg">¿Registrar ahora?</button>
+
         </div>
 
 
@@ -371,12 +380,25 @@ if (isset($_POST[validar_info])) {
 
             //btn_submit
 
+            $('#btn_reg').click(function () {
+
+                $('#btn_reg').remove();
+                $('#btn_submit').remove();
+                $('#validar_info_usr').html("");
+                $('#doc_add').attr('disabled', 'disabled');
+                $('#insert_user_p').show();
+                $('#camp_f_n').show();
+                $('#camp_nom').show();
+
+
+            });
+
             $('#insert_user_p').click(function () {
 
                 $.ajax({
                     type: "POST",
-                    url: "/testBackend_yecid/consultas.php",
-                    data: {"nom": $("#nombre_add"), "doc": $("#doc_add"), "fecha": $("#datepicker"), "add_user": "add_user"},
+                    url: "/testBackend/consultas.php",
+                    data: {"nom": $("#nombre_add").val(), "doc": $("#doc_add").val(), "fecha": $("#datepicker").val(), "add_user": "add_user"},
                     success: function (data)
                     {
                         $('#validar_info_usr').html(data);
@@ -394,6 +416,16 @@ if (isset($_POST[validar_info])) {
 }
 
 if (isset($_POST[add_user])) {
-    echo "asd";
+
+    $insert = $sql->Consultar("INSERT INTO persona
+(nom_persona,f_nacimiento,doc_identidad,estado)
+VALUES
+('$_POST[nom]','$_POST[fecha]','$_POST[doc]',1)");
+    ?>
+    <script>
+        $('#info_user').find('input, select').attr('disabled', 'disabled');
+        $('#insert_user_p').remove();
+    </script>
+    <?php
 }
 ?>
